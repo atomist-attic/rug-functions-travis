@@ -1,0 +1,17 @@
+---
+kind: "operation"
+client: "rug-cli 0.25.0-SNAPSHOT"
+generator:
+  name: "NewScalaRugFunctionProject"
+  group: "atomist-rugs"
+  artifact: "rug-function-editors"
+  version: "0.1.0-SNAPSHOT"
+  origin:
+    repo: "git@github.com:atomisthqa/github-commands.git"
+    branch: "rug-function"
+    sha: "d5bc5ae"
+  parameters:
+    - "functionName": "RestartBuild"
+    - "group": "com.atomist.rug.functions.travis"
+    - "project_name": "rug-functions-travis"
+

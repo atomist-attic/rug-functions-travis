@@ -17,7 +17,7 @@ class RestartBuild
 
   private val travisEndpoints = new RealTravisEndpoints
 
-  @RugFunction(name = "RestartBuild", description = "Restarts a travis build",
+  @RugFunction(name = "restart-travis-build", description = "Restarts a travis build",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
   def invoke(@Parameter(name = "org") org: String,
              @Parameter(name = "buildId") buildId: Int,

@@ -1,18 +1,22 @@
 # rug-functions-travis
 
-Currently contains a single Rug Function: RestartBuild (org, buildId, token)
+Rug functions that hit the [Travis CI][travis-ci] API.  Currently
+contains the following Rug functions:
 
-# Building
+-   `RestartBuild(org, buildId, token)`
+-   `BuildRug(owner, repo, version, teamId, gitRef, travisToken, mavenBaseUrl, mavenUser, mavenToken, userToken)`
 
-Currently there is no travis build. 
+[travis-ci]: https://travis-ci.org/
 
-To build:
+## Building
 
-```shell
-mvn install
+To build, test, and install:
+
+```
+$ mvn install
 ```
 
-# Releasing
+## Releasing
 
 1. Remove -SNAPSHOT from the pom and commit
 2. Tag with version in the pom

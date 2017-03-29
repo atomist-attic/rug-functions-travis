@@ -1,1 +1,2 @@
 com.atomist.rug.functions.travis.RestartBuild
+com.atomist.rug.functions.travis.BuildRug

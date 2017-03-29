@@ -3,6 +3,7 @@ package com.atomist.rug.functions.travis
 import java.net.URI
 import java.util
 import java.util.Collections
+import scala.collection.JavaConverters._
 
 import com.atomist.rug.InvalidRugParameterPatternException
 import org.springframework.http.{HttpHeaders, HttpMethod, HttpStatus, RequestEntity}
@@ -83,6 +84,14 @@ trait TravisEndpoints {
     * @param number number of build to restart
     */
   def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit
+
+  /** Start a new build on Travis CI
+    *
+    * @param endpoint org|com
+    * @param headers standard Travis API headers
+    * @param repo repo slug, e.g., "atomist-rugs/rug-editors"
+    */
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String, envVars: Seq[String]): Unit
 }
 
 object TravisEndpoints {
@@ -206,6 +215,22 @@ class RealTravisEndpoints extends TravisEndpoints {
       headers,
       HttpMethod.POST,
       URI.create(s"https://api.travis-ci.${endpoint.tld}/builds/$number/restart")
+    )
+    restTemplate.exchange(request, classOf[util.Map[String, Object]])
+  }
+
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String, envVars: Seq[String]): Unit = {
+    val body = Collections.singletonMap[String, Object]("request", Collections.unmodifiableMap[String, Object](Map(
+      "message" -> s"API initiated Atomist Rug archive build for $repoSlug",
+      "branch" -> "master",
+      "config" -> Collections.singletonMap[String, Object](
+        "env", Collections.singletonMap[String, Object]("global", Collections.unmodifiableList[String](envVars.asJava)))
+    ).asJava))
+    val request = new RequestEntity(
+      body,
+      headers,
+      HttpMethod.POST,
+      URI.create(s"https://api.travis-ci.${endpoint.tld}/repo/$repoSlug/requests")
     )
     restTemplate.exchange(request, classOf[util.Map[String, Object]])
   }

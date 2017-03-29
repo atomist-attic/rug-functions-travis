@@ -1,0 +1,35 @@
+dist: trusty
+sudo: false
+language: java
+jdk:
+- oraclejdk8
+branches:
+  except:
+  - "/\\+travis\\d+$/"
+env:
+  global:
+  - secure: lveG/Zbh5LXHfuHY2g9p1Lq7v0862LMJXULXnaWoSgacgEudymBRovumRb5MTjuU7wHK57b4xceBT7+7B906S03h7eiM6UvLOZKmxqFvpcE0S5kLsyGQDgmXPztqf3412jTdV0b3W4Z5TRxDC+mpz409NduUFNbgmgEp2zsRTdOFk205bkIk4aVIGJrf9Qd1wICfsKpTks6C7fEyCzgnTleDtBPwWSv+rrHcyE7uzLM1l8imxj84fqe8UavcIygw8ufUUagnd+pR54PMAccGX2Ypd8WDW3a8Ri8b6giFdkuzsmPNt1Gc05MyjpajGtXdF5nMWkmj4KDmQCZPGWKBvUxJ0B66c6qe2VXpUZ/Cfllct9LYMw62LR6pJeqXXP+QmuxugaREPMifBqo64+UffmaCZSiD+f4ezUpBfgIl2BZgjwNOjf6YPK7cUPHC639wKo+DpC25c7+hLn/h0KxmKEkf/P9ehOXp/QBHqzAZzife7WtAetW2gjDqM+iFgBxwTjFHO4hhhOJ2Ma8iVwwjxL+5lDTFfMrCfowtOefdJUGQKnv3QwcHYz5soHRVIUrQcTUaq2Ga+e8QgIg+Gc/RHaqi0NNH4q/1kCXQcNtL4iodrqPFZd1UXBpgNV0SCx7W9vmgZEKaLsIk8CtYlVdQxGgDf0WOj9D0ftKN/k3Oj3E=
+  - secure: TWwNm2dpim9MEc/KNQwq+NLxsgXy13kSvNdNUABRlti1nucJRyv2OPNNDjvZXtkhcNL9nOJRsaEyT2odsKfNpIDDU6oVpslxKTDut4qQJcqqziNBnjJTfKYCyqzI1gzv+53oxCKp6bOqeEniK+Yz0SOQw+Wzb9Zv+s34j9ua1nHWQgTi5m5IVUf4qryqvI5xtEdjzqWDSllI1ah0DzcH3EB16GGGrq7yhI/pk97dOpbjcb0REyxPtlMjetByMljRRjMh46gWsgYOc3XqVJ88WrJ9ZM8ngQgKGcSWCjK0onERHAVS3i2srp1F+wOwgH7hRc0OkGLJOfkSfLS6LNstpPHVNvbaZGVH0C/OrcDWY6Nb5i0aPkVW9eZglFKaPLLgdzouX0CdF0JUUjtDyHlbC+7zn0sRCmBckymIDthOFR/oAcZ0/sgQTj+grUtZT/WX9/P9sQBy5xctB1swd8gq32Q8ETnR+ypXPjtTdYuUE7GFFfCxhYUG41aVjJx8/Rkvi6QnnQrXI2ZxPaEBtsq9tqBen9g6df3BFhOBZJ0TMOUFoBonlL5WNUrLUipIKQI2KEgbvEnP0B2t6BFFGN+y4a9+g2JplbZr8cYzUePQOlidTEaZljtBd/Ct9u/OmIHn81KK0UyWda1WXyofh0QVfJVPb2C15O4vxTsfKGLmJAs=
+  - secure: OWyUrLeYlAcTu1+w3EqfcMPtVc7l0ByItQcBf6en3WS7eJZH6vFTrtsECeiqSw6QHbnwb71CaLcERkthObJt/mh3cMWz2gGD9H04AkDn7yA6xAoVs5zQOziDQNKDxGD2VEai3X38VjX5vgxfGHH6rX8HHamMDMf8j+v1QLikrLXmcHPgIpp4ZBoUB4J+ok2nk6r4CCrRgr7mxibTrJXqCA9RDf+rwGM1DJtTAZGhq4bfyAYmhl2vBvVxXxTsyGmUXIcKU3LRTY5jYuaEtHxJvcPgq7zSa1/x5SZ55MWhE5MuoS6fz8bjwyM4U/zuoTSKgvz98aKUx6xdQsRBWrVUxzxDYR7F8TqVf3QjCRsHFoDhCManaWOjmCs1gDlc4oEsUxLZiDxgU0/tBrDh/SXv7WAOUnM+v0iUggq9rsmXQJMC91FT6nCKnp0rNXRf+ZmR3ChdhQYAD7p7PNZ8bwdwObMU9CY9End1XyBCVdYJWvxSKi0QUEOXHgiFDdeseI8Eyac9yH/s7FKNknx8UPTQxuIYMqT+IGB265VikqBMu4CuoaYfY/775U5ThcMcKUtBp/lA+hlm/SQ2b0fdaScUcXYHVebz8qqMKCy0n6XV8KTOpZ3w3dPh2FGKWaThB6N3F03JmTj6+QOLy37Wsvi4r5KBi8shB1BDSIVfQuJBvzE=
+install:
+- nvm install 6.9.3
+- npm install -g typescript
+script: bash src/main/scripts/travis-build.bash
+notifications:
+  email: false
+  webhooks:
+    on_success: always
+    on_failure: always
+    on_start: always
+    urls:
+    - https://webhook.atomist.com/travis
+cache:
+  directories:
+  - "$HOME/.m2"
+deploy:
+  provider: releases
+  api_key:
+    secure: bkbXzXvYn3OpU66tj5EcQ+/UBau8apIwG8a0/PJeLyLm+hjKd5HIV3bsBllb4FWmz1G4ybwZCcwKtlipvI4UF0WYDcs5HbpNF/g6OeFVuu1tR0LpRxv8h7Ss0HH6qa6VugYKWndBMDEhSP0INEAoiiaEV5Kj3+fb3x46nTABe0yCn4RKtsBzyOV7YxNb8PGM3F+/15eJI83JKX9AeO2Xk7O7p49mdkQvtXR0vU1jnPU/TbbiN9DbTS8oPuWMFdocjtgjgQAwNYZSpnWY9FeA7r4UNMy0Bg0v1yfcsZIzzk53hysO7xagjMEGXoPu860uLiPncoCOlJsYvP9n6QA4XJKdLIhPr6UsdcEbj/KymffWvMAQu9H0HB3r7yyMg6JrjBtuy3abBsO1D/FbL7DuTVE++aFIJVcCZc0qG64TZ5t56R0YdiMvWiasev5cymsZOsxVXVRBYsQ2btf17WMYiLB1D5VPeuJr4aD1ZxA2sp3b06kEUwsXTXZQiIAb50QB8uOTfEd2p4s1a/jVICYxp6kQc36+h99Fkw9fcvyTtYp/gAmrmXkoXr+Uy2OozjWMugjPMlJdW4FYmPA7ZxWOH05q7yzDevjBaIIO/KfuszTY/yx7WKgYj6f+qkCxAtS3RlAfzo3hY18oii6URpEcTsIBSKRiJiw4m/v4MPur/gk=
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$

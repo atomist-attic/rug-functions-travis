@@ -44,10 +44,10 @@ class BuildRug extends AnnotatedRugFunction
               @Parameter(name = "version") version: String,
               @Parameter(name = "teamId") teamId: String,
               @Parameter(name = "gitRef") gitRef: String,
-              @Secret(name = "travisToken", path = "secret://team/travis_token") travisToken: String,
-              @Secret(name = "mavenBaseUrl", path = "secret://team/maven_base_url") mavenBaseUrl: String,
-              @Secret(name = "mavenUser", path = "secret://team/maven_user") mavenUser: String,
-              @Secret(name = "mavenToken", path = "secret://team/maven_token") mavenToken: String,
+              @Secret(name = "travisToken", path = "secret://team?path=travis_token") travisToken: String,
+              @Secret(name = "mavenBaseUrl", path = "secret://team?path=maven_base_url") mavenBaseUrl: String,
+              @Secret(name = "mavenUser", path = "secret://team?path=maven_user") mavenUser: String,
+              @Secret(name = "mavenToken", path = "secret://team?path=maven_token") mavenToken: String,
               @Secret(name = "userToken", path = "github://user_token?scopes=repo") userToken: String): FunctionResponse = {
 
     Security.addProvider(new BouncyCastleProvider)

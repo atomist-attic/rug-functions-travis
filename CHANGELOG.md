@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased]: https://github.com/atomist-rugs/rug-function-travis/compare/0.5.0...HEAD
 
+### Fixed
+
+-   Secret paths
+
 ## [0.5.0] - 2017-03-30
 
 [0.5.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.4.0...0.5.0

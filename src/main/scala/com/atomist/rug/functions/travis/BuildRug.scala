@@ -58,6 +58,7 @@ class BuildRug extends AnnotatedRugFunction
     )
     val api: TravisAPIEndpoint = TravisComEndpoint
     val buildRepoSlug = "atomisthq/rug-build"
+    val message = s"Atomist Rug build of $owner/$repo"
     val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
     val secureEnvValues: Seq[String] = secureVars.map(encryptString(buildRepoSlug, api, headers, _))
     val secureEnvs: Seq[String] = secureEnvValues.zipWithIndex.map(ei => s"ATOMIST_SECURE${ei._2}=${ei._1}")
@@ -72,7 +73,7 @@ class BuildRug extends AnnotatedRugFunction
     ) ++ secureEnvs
 
     try {
-      travisEndpoints.postStartBuild(api, headers, buildRepoSlug, travisEnvs)
+      travisEndpoints.postStartBuild(api, headers, buildRepoSlug, message, travisEnvs)
       FunctionResponse(Status.Success, Option(s"Successfully started build for $owner/$repo on Travis CI"), None, None)
     }
     catch {

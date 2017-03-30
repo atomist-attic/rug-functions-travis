@@ -91,7 +91,7 @@ trait TravisEndpoints {
     * @param headers standard Travis API headers
     * @param repo repo slug, e.g., "atomist-rugs/rug-editors"
     */
-  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String, envVars: Seq[String]): Unit
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String, message: String, envVars: Seq[String]): Unit
 }
 
 object TravisEndpoints {
@@ -219,18 +219,21 @@ class RealTravisEndpoints extends TravisEndpoints {
     restTemplate.exchange(request, classOf[util.Map[String, Object]])
   }
 
-  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String, envVars: Seq[String]): Unit = {
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String, message: String, envVars: Seq[String]): Unit = {
     val body = Collections.singletonMap[String, Object]("request", Collections.unmodifiableMap[String, Object](Map(
-      "message" -> s"API initiated Atomist Rug archive build for $repoSlug",
+      "message" -> s"API initiated Travis CI build: $message",
       "branch" -> "master",
       "config" -> Collections.singletonMap[String, Object](
         "env", Collections.singletonMap[String, Object]("global", Collections.unmodifiableList[String](envVars.asJava)))
     ).asJava))
+    val escapedRepoSlug = repoSlug.replace("/", "%2F")
+    val urlString = s"https://api.travis-ci.${endpoint.tld}/repo/$escapedRepoSlug/requests"
+    headers.add("Travis-API-Version", "3")
     val request = new RequestEntity(
       body,
       headers,
       HttpMethod.POST,
-      URI.create(s"https://api.travis-ci.${endpoint.tld}/repo/$repoSlug/requests")
+      URI.create(urlString)
     )
     restTemplate.exchange(request, classOf[util.Map[String, Object]])
   }

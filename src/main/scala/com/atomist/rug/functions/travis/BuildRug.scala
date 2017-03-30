@@ -16,6 +16,11 @@ import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
 import com.typesafe.scalalogging.LazyLogging
 import org.springframework.http.HttpHeaders
 
+object BuildRug {
+
+  Security.addProvider(new BouncyCastleProvider)
+}
+
 class BuildRug extends AnnotatedRugFunction
   with RugSupport
   with LazyLogging{
@@ -50,7 +55,6 @@ class BuildRug extends AnnotatedRugFunction
               @Secret(name = "mavenToken", path = "secret://team?path=maven_token") mavenToken: String,
               @Secret(name = "userToken", path = "github://user_token?scopes=repo") userToken: String): FunctionResponse = {
 
-    Security.addProvider(new BouncyCastleProvider)
     val secureVars: Seq[String] = Seq(
       s"MAVEN_USER=$mavenUser",
       s"MAVEN_TOKEN=$mavenToken",

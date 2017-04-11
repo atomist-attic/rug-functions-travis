@@ -9,7 +9,7 @@ import javax.crypto.Cipher
 import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import com.atomist.rug.runtime.RugSupport
+import com.atomist.rug.runtime.Rug
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
 import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
@@ -22,7 +22,7 @@ object BuildRug {
 }
 
 class BuildRug extends AnnotatedRugFunction
-  with RugSupport
+  with Rug
   with LazyLogging{
 
   private val travisEndpoints = new RealTravisEndpoints

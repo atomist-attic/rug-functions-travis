@@ -1,6 +1,6 @@
 package com.atomist.rug.functions.travis
 
-import com.atomist.rug.runtime.RugSupport
+import com.atomist.rug.runtime.Rug
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
 import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders
   */
 class RestartBuild
   extends AnnotatedRugFunction
-    with RugSupport
+    with Rug
     with LazyLogging{
 
   private val travisEndpoints = new RealTravisEndpoints

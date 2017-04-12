@@ -38,10 +38,10 @@ trait TravisEndpoints {
     *
     * @param endpoint org|com
     * @param headers standard Travis API headers
-    * @param repo repo slug, e.g., "owner/name"
+    * @param repoSlug repo slug, e.g., "owner/name"
     * @return Repo key
     */
-  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String): String
+  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String
 
   /** Enable or disable CI for the repo.
     *
@@ -62,10 +62,10 @@ trait TravisEndpoints {
     *
     * @param endpoint org|com
     * @param headers standard Travis API headers
-    * @param repo repo slug, e.g., "owner/name"
+    * @param repoSlug repo slug, e.g., "owner/name"
     * @return unique repo identifier
     */
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String): Int
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int
 
   /** Authenticate with Travis using GitHub token.
     *
@@ -89,9 +89,9 @@ trait TravisEndpoints {
     *
     * @param endpoint org|com
     * @param headers standard Travis API headers
-    * @param repo repo slug, e.g., "atomist-rugs/rug-editors"
+    * @param repoSlug repo slug, e.g., "atomist-rugs/rug-editors"
     */
-  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String, message: String, envVars: Seq[String]): Unit
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String, message: String, envVars: Seq[String]): Unit
 }
 
 object TravisEndpoints {
@@ -126,11 +126,11 @@ class RealTravisEndpoints extends TravisEndpoints {
 
   private val restTemplate: RestTemplate = new RestTemplate()
 
-  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String): String = {
+  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.GET,
-      URI.create(s"https://api.travis-ci.${endpoint.tld}/repos/$repo/key")
+      URI.create(s"https://api.travis-ci.${endpoint.tld}/repos/$repoSlug/key")
     )
     val responseEntity = restTemplate.exchange(request, classOf[util.Map[String, Object]])
     responseEntity.getBody.get("key").asInstanceOf[String]
@@ -179,11 +179,11 @@ class RealTravisEndpoints extends TravisEndpoints {
     }
   }
 
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repo: String): Int = {
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.GET,
-      URI.create(s"https://api.travis-ci.${endpoint.tld}/repos/$repo")
+      URI.create(s"https://api.travis-ci.${endpoint.tld}/repos/$repoSlug")
     )
     val responseEntity = restTemplate.exchange(request, classOf[util.Map[String, Object]])
     val repoObject: util.Map[String, Object] = responseEntity.getBody.get("repo").asInstanceOf[util.Map[String, Object]]

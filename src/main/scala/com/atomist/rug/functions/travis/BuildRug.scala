@@ -1,14 +1,5 @@
 package com.atomist.rug.functions.travis
 
-import java.io.StringReader
-import java.security.{KeyFactory, Security}
-import java.security.spec.X509EncodedKeySpec
-import java.util.Base64
-import javax.crypto.Cipher
-
-import org.bouncycastle.openssl.PEMParser
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import com.atomist.rug.runtime.Rug
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
@@ -16,20 +7,15 @@ import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
 import com.typesafe.scalalogging.LazyLogging
 import org.springframework.http.HttpHeaders
 
-object BuildRug {
-
-  Security.addProvider(new BouncyCastleProvider)
-}
-
 class BuildRug extends AnnotatedRugFunction
   with Rug
-  with LazyLogging{
+  with LazyLogging {
 
   private val travisEndpoints = new RealTravisEndpoints
 
   /**
     * Execute travis-build-rug Rug function, which builds an arbitrary Rug archive
-    * @param owner GitHub owner of the repo to be built
+    * @param owner GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo name of the repo to be built
     * @param version version of Rug archive to publish
     * @param teamId Slack team ID connected to the GitHub owner
@@ -87,18 +73,6 @@ class BuildRug extends AnnotatedRugFunction
   }
 
   private[travis] def encryptString(repoSlug: String, api: TravisAPIEndpoint, headers: HttpHeaders, content: String): String = {
-    val key = travisEndpoints.getRepoKey(api, headers, repoSlug)
-
-    val parser = new PEMParser(new StringReader(key))
-    val ob = parser.readObject().asInstanceOf[SubjectPublicKeyInfo]
-
-    val pubKeySpec = new X509EncodedKeySpec(ob.getEncoded())
-    val keyFactory = KeyFactory.getInstance("RSA")
-    val publicKey = keyFactory.generatePublic(pubKeySpec)
-
-    val rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
-    rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey)
-
-    Base64.getEncoder.encodeToString(rsaCipher.doFinal(content.getBytes()))
+    new Encrypt().encryptString(repoSlug, api, headers, content)
   }
 }

@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist-rugs/rug-function-travis/compare/0.6.1...HEAD
+[Unreleased]: https://github.com/atomist-rugs/rug-function-travis/compare/0.7.0...HEAD
+
+### Added
+
+-   New Rug functions: travis-encrypt, travis-enable-repo, travis-disable-repo
+
+### Changed
+
+-   Updated to rug 0.25.1
+
+## [0.7.0] - 2017-03-30
+
+[0.7.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.6.1...0.7.0
+
+Papa's got a brand new Rug release
+
+### Changed
+
+-   Update to rug 0.25.0
 
 ## [0.6.1] - 2017-03-30
 

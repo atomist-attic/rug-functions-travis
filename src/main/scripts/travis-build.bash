@@ -38,8 +38,8 @@ function main() {
         fi
     fi
 
-    if ! $mvn install -Dmaven.javadoc.skip=true; then
-        err "maven install failed"
+    if ! $mvn test -Dmaven.javadoc.skip=true; then
+        err "maven test failed"
         return 1
     fi
 
@@ -54,7 +54,7 @@ function main() {
         if [[ $TRAVIS_BRANCH == master ]]; then
             mvn_deploy_args=-DaltDeploymentRepository=public-atomist-dev::default::https://atomist.jfrog.io/atomist/libs-dev-local
         fi
-        if ! $mvn deploy -DskipTests $mvn_deploy_args; then
+        if ! $mvn deploy -Dgpg.executable=gpg -Dgpg.keyname=DA85ED8F -Dgpg.passphrase="$GPG_PASSPHRASE" -DskipTests $mvn_deploy_args; then
             err "maven deploy failed"
             return 1
         fi

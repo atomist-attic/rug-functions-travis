@@ -25,7 +25,7 @@ object Encrypt {
 /**
   * Use Travis API to encrypt strings using the repository public key.
   */
-class Encrypt  extends AnnotatedRugFunction
+class Encrypt extends AnnotatedRugFunction
   with Rug
   with LazyLogging {
 
@@ -33,28 +33,28 @@ class Encrypt  extends AnnotatedRugFunction
 
   /**
     *
-    * @param owner GitHub owner, i.e., user or organization, of the repo to enable
-    * @param repo name of the repo to enable
-    * @param org Travis CI ".com" or ".org" endpoint
+    * @param owner   GitHub owner, i.e., user or organization, of the repo to enable
+    * @param repo    name of the repo to enable
+    * @param org     Travis CI ".com" or ".org" endpoint
     * @param content content to encrypt
-    * @param token GitHub token with "repo" scope for `owner`/`repo`
+    * @param token   GitHub token with "repo" scope for `owner`/`repo`
     * @return
     */
   @RugFunction(name = "travis-encrypt", description = "Encrypts a value using Travis CI repo public key",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
   def encrypt(
-                @Parameter(name = "owner") owner: String,
-                @Parameter(name = "repo") repo: String,
-                @Parameter(name = "org") org: String,
-                @Parameter(name = "content") content: String,
-                @Secret(name = "user_token", path = "github://user_token?scopes=repos") token: String
+               @Parameter(name = "owner") owner: String,
+               @Parameter(name = "repo") repo: String,
+               @Parameter(name = "org") org: String,
+               @Parameter(name = "content") content: String,
+               @Secret(name = "user_token", path = "github://user_token?scopes=repos") token: String
              ): FunctionResponse = {
 
-    val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
-    val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
-    val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
     val repoSlug = s"$owner/$repo"
     try {
+      val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
+      val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
+      val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
       val encryptedContent = encryptString(repoSlug, api, headers, content)
       FunctionResponse(
         Status.Success,

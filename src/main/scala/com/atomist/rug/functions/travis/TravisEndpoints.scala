@@ -179,6 +179,19 @@ class RealTravisEndpoints extends TravisEndpoints {
     }
   }
 
+
+  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String ): Int = {
+
+    val id: Int = try {
+      getRepo(api, headers, repoSlug)
+    } catch {
+      case he: HttpClientErrorException if he.getStatusCode == HttpStatus.NOT_FOUND =>
+        postUsersSync(api, headers)
+        getRepo(api, headers, repoSlug)
+    }
+    id
+  }
+
   def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,

@@ -82,9 +82,7 @@ class RepoHook extends AnnotatedRugFunction
     val token: String = travisEndpoints.postAuthGitHub(api, githubToken)
     val headers: HttpHeaders = TravisEndpoints.authHeaders(api, token)
 
-    travisEndpoints.postUsersSync(api, headers)
-
-    val id: Int = travisEndpoints.getRepo(api, headers, repoSlug)
+    val id: Int = travisEndpoints.getRepoRetryingWithSync(api, headers, repoSlug)
 
     val hook = new util.HashMap[String, Any]()
     hook.put("id", id)
@@ -94,5 +92,6 @@ class RepoHook extends AnnotatedRugFunction
 
     travisEndpoints.putHook(api, headers, body)
   }
+
 
 }

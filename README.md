@@ -1,5 +1,7 @@
 # rug-functions-travis
 
+[![Build Status](https://travis-ci.org/atomist-rugs/rug-functions-travis.svg?branch=master)](https://travis-ci.org/atomist-rugs/rug-functions-travis)
+
 Rug functions that hit the [Travis CI][travis-ci] API.  Currently
 contains the following Rug functions:
 

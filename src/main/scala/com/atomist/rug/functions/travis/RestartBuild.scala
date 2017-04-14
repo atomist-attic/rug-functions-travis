@@ -21,7 +21,7 @@ class RestartBuild
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
   def invoke(@Parameter(name = "org") org: String,
              @Parameter(name = "buildId") buildId: Int,
-             @Secret(name = "user_token", path = "github://user_token?scopes=repos") token: String): FunctionResponse = {
+             @Secret(name = "user_token", path = "github://user_token?scopes=repo") token: String): FunctionResponse = {
 
       val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
       val travisToken: String = travisEndpoints.postAuthGitHub(api, token)

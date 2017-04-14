@@ -33,7 +33,7 @@ class RepoHook extends AnnotatedRugFunction
               @Parameter(name = "owner") owner: String,
               @Parameter(name = "repo") repo: String,
               @Parameter(name = "org") org: String,
-              @Secret(name = "github_token", path = "github://user_token?scopes=repos") token: String
+              @Secret(name = "github_token", path = "github://user_token?scopes=repo") token: String
             ): FunctionResponse = {
     val enableTravis = true
     tryRepoEnabler(enableTravis, owner, repo, token, org)
@@ -54,7 +54,7 @@ class RepoHook extends AnnotatedRugFunction
                @Parameter(name = "owner") owner: String,
                @Parameter(name = "repo") repo: String,
                @Parameter(name = "org") org: String,
-               @Secret(name = "github_token", path = "github://user_token?scopes=repos") token: String
+               @Secret(name = "github_token", path = "github://user_token?scopes=repo") token: String
              ): FunctionResponse = {
     val disableTravis = false
     tryRepoEnabler(disableTravis, owner, repo, token, org)

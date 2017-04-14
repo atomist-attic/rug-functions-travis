@@ -47,7 +47,7 @@ class Encrypt extends AnnotatedRugFunction
                @Parameter(name = "repo") repo: String,
                @Parameter(name = "org") org: String,
                @Parameter(name = "content") content: String,
-               @Secret(name = "user_token", path = "github://user_token?scopes=repos") token: String
+               @Secret(name = "user_token", path = "github://user_token?scopes=repo") token: String
              ): FunctionResponse = {
 
     val repoSlug = s"$owner/$repo"

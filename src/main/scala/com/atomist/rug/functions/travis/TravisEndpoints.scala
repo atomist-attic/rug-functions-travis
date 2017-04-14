@@ -23,6 +23,12 @@ object TravisAPIEndpoint {
     case _ => throw new InvalidRugParameterPatternException("Travis CI endpoint must be 'org' or 'com'")
   }
 
+  def isPublic(ep: String): Boolean = ep match {
+    case ".org" | "org" => true
+    case ".com" | "com" => false
+    case _ => throw new InvalidRugParameterPatternException("Travis CI endpoint must be 'org' or 'com'")
+  }
+
 }
 
 object TravisOrgEndpoint extends TravisAPIEndpoint {

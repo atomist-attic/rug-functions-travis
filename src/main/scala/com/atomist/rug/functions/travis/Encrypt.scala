@@ -53,8 +53,12 @@ class Encrypt extends AnnotatedRugFunction
     val repoSlug = s"$owner/$repo"
     try {
       val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
-      val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
-      val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
+      val headers = if (TravisAPIEndpoint.isPublic(org)) {
+        TravisEndpoints.headers(api)
+      } else {
+        val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
+        TravisEndpoints.authHeaders(api, travisToken)
+      }
       val encryptedContent = encryptString(repoSlug, api, headers, content)
       FunctionResponse(
         Status.Success,

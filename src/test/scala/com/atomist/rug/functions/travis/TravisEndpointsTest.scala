@@ -1,39 +1,57 @@
 package com.atomist.rug.functions.travis
 
-import java.util.Collections
+import java.util
 
-import com.atomist.rug.InvalidRugParameterPatternException
 import org.scalatest.{FlatSpec, Matchers}
+import org.springframework.http.HttpHeaders
+
+import scala.util.matching.Regex
 
 class TravisEndpointsTest extends FlatSpec with Matchers {
 
-  import TravisAPIEndpoint._
-
-  "stringToTravisEndpoint" should "accept org" in {
-    stringToTravisEndpoint("org") should be(TravisOrgEndpoint)
+  private def checkHeader(k: String, v: String): Unit = {
+    val hdrs = TravisEndpoints.headers.get(k)
+    hdrs.size() === 1
+    hdrs.get(0) === v
   }
 
-  it should "accept .org" in {
-    stringToTravisEndpoint(".org") should be(TravisOrgEndpoint)
+  private def matchHeader(k: String, regex: Regex): Unit = {
+    val hdrs = TravisEndpoints.headers.get(k)
+    hdrs.size() === 1
+    hdrs.get(0) match {
+      case regex() =>
+      case x => fail(s"header $k failed to match $regex: $x")
+    }
   }
 
-  it should "accept com" in {
-    stringToTravisEndpoint("com") should be(TravisComEndpoint)
+  "headers" should "return headers" in {
+    TravisEndpoints.headers.size() > 0
   }
 
-  it should "accept .com" in {
-    stringToTravisEndpoint(".com") should be(TravisComEndpoint)
+  it should "specify travis in user agent header" in {
+    matchHeader("User-Agent", """.*\bTravis\b.*""".r)
   }
 
-  it should "throw an exception if not given a valid API type" in {
-    an[InvalidRugParameterPatternException] should be thrownBy stringToTravisEndpoint(".blah")
+  it should "specify a content type of application/json" in {
+    checkHeader("Content-Type", "application/json")
   }
 
-  "RealTravisEndpoints" should "return cached token" in {
-    val t: String = "notarealtravistoken"
-    val rte: RealTravisEndpoints = new RealTravisEndpoints
-    rte.travisTokens = Collections.singletonMap("doesnotmatter", "notarealtravistoken")
-    val api: TravisAPIEndpoint = TravisOrgEndpoint
-    rte.postAuthGitHub(api, "doesnotmatter") should be(t)
+  it should "specify it accepts travis return type" in {
+    matchHeader("Accept", """.*\btravis\b.*\bjson\b.*""".r)
+  }
+
+  "authHeaders" should "return more headers" in {
+    TravisEndpoints.headers.size() + 1 === TravisEndpoints.authHeaders("phonytoken").size()
+  }
+
+  it should "include the token in the authorization header" in {
+    val phonyToken = "notarealtokenforanything"
+    val authHeaders = TravisEndpoints.authHeaders(phonyToken).get("Authorization")
+    authHeaders.size() === 1
+    val tokenRE = s".*\\b$phonyToken\\b.*".r
+    authHeaders.get(0) match {
+      case tokenRE() =>
+      case x => fail(s"authorization header failed to match provided token: $x")
+    }
   }
 }

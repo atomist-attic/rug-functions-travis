@@ -1,20 +1,16 @@
 package com.atomist.rug.functions.travis
 
-import com.atomist.rug.runtime.Rug
 import com.atomist.rug.spi.Handlers.Status
-import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
-import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
-import com.typesafe.scalalogging.LazyLogging
+import com.atomist.rug.spi.{FunctionResponse, StringBodyOption}
 import org.springframework.http.HttpHeaders
 
-class BuildRug extends AnnotatedRugFunction
-  with Rug
-  with LazyLogging {
+/**
+  * Build any Rug project on Travis CI using a single repo
+  */
+case class BuildRug(travisEndpoints: TravisEndpoints) {
 
-  private val travisEndpoints = new RealTravisEndpoints
-
-  /**
-    * Execute travis-build-rug Rug function, which builds an arbitrary Rug archive
+  /** Build any Rug project using a single GitHub repo's Travis CI build
+    *
     * @param owner GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo name of the repo to be built
     * @param version version of Rug archive to publish
@@ -25,21 +21,18 @@ class BuildRug extends AnnotatedRugFunction
     * @param mavenUser user with write access to Maven repository
     * @param mavenToken API token for Maven user
     * @param userToken GitHub token with "repo" scope for `owner`/`repo`
-    * @return
+    * @return Rug function response indicating success or failure
     */
-  @RugFunction(name = "travis-build-rug", description = "builds a Rug archive on Travis CI using rug-build",
-    tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
-  def invoke(
-              @Parameter(name = "owner") owner: String,
-              @Parameter(name = "repo") repo: String,
-              @Parameter(name = "version") version: String,
-              @Parameter(name = "teamId") teamId: String,
-              @Parameter(name = "gitRef") gitRef: String,
-              @Secret(name = "travisToken", path = "secret://team?path=travis_token") travisToken: String,
-              @Secret(name = "mavenBaseUrl", path = "secret://team?path=maven_base_url") mavenBaseUrl: String,
-              @Secret(name = "mavenUser", path = "secret://team?path=maven_user") mavenUser: String,
-              @Secret(name = "mavenToken", path = "secret://team?path=maven_token") mavenToken: String,
-              @Secret(name = "userToken", path = "github://user_token?scopes=repo") userToken: String): FunctionResponse = {
+  def build(owner: String,
+            repo: String,
+            version: String,
+            teamId: String,
+            gitRef: String,
+            travisToken: String,
+            mavenBaseUrl: String,
+            mavenUser: String,
+            mavenToken: String,
+            userToken: String): FunctionResponse = {
 
     val secureVars: Seq[String] = Seq(
       s"MAVEN_USER=$mavenUser",
@@ -49,30 +42,33 @@ class BuildRug extends AnnotatedRugFunction
     val api: TravisAPIEndpoint = TravisComEndpoint
     val buildRepoSlug = "atomisthq/rug-build"
     val message = s"Atomist Rug build of $owner/$repo"
-    val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
-    val secureEnvValues: Seq[String] = secureVars.map(encryptString(buildRepoSlug, api, headers, _))
-    val secureEnvs: Seq[String] = secureEnvValues.zipWithIndex.map(ei => s"ATOMIST_SECURE${ei._2}=${ei._1}")
-
-    val travisEnvs: Seq[String] = Seq(
-      s"MAVEN_BASE_URL=$mavenBaseUrl",
-      s"OWNER=$owner",
-      s"REPO=$repo",
-      s"VERSION=$version",
-      s"TEAM_ID=$teamId",
-      s"GIT_REF=$gitRef"
-    ) ++ secureEnvs
+    val headers: HttpHeaders = TravisEndpoints.authHeaders(travisToken)
 
     try {
+      val secureEnvValues: Seq[String] = secureVars.map(encryptString(buildRepoSlug, api, headers, _))
+      val secureEnvs: Seq[String] = secureEnvValues.zipWithIndex.map(ei => s"ATOMIST_SECURE${ei._2}=${ei._1}")
+
+      val travisEnvs: Seq[String] = Seq(
+        s"MAVEN_BASE_URL=$mavenBaseUrl",
+        s"OWNER=$owner",
+        s"REPO=$repo",
+        s"VERSION=$version",
+        s"TEAM_ID=$teamId",
+        s"GIT_REF=$gitRef"
+      ) ++ secureEnvs
+
       travisEndpoints.postStartBuild(api, headers, buildRepoSlug, message, travisEnvs)
       FunctionResponse(Status.Success, Option(s"Successfully started build for $owner/$repo on Travis CI"), None, None)
-    }
-    catch {
+    } catch {
       case e: Exception =>
-        FunctionResponse(Status.Failure, Some(s"Failed to start build for $owner/$repo on Travis CI"), None, StringBodyOption(e.getMessage))
+        FunctionResponse(Status.Failure, Some(s"Failed to start build for $owner/$repo on Travis CI"),
+          None, StringBodyOption(e.getMessage))
     }
   }
 
-  private[travis] def encryptString(repoSlug: String, api: TravisAPIEndpoint, headers: HttpHeaders, content: String): String = {
-    new Encrypt().encryptString(repoSlug, api, headers, content)
-  }
+  private def encryptString(repoSlug: String,
+                            api: TravisAPIEndpoint,
+                            headers: HttpHeaders,
+                            content: String): String =
+    new Encrypt(travisEndpoints).encryptString(repoSlug, api, headers, content)
 }

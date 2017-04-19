@@ -1,4 +1,5 @@
-com.atomist.rug.functions.travis.RestartBuild
-com.atomist.rug.functions.travis.BuildRug
-com.atomist.rug.functions.travis.RepoHook
-com.atomist.rug.functions.travis.Encrypt
+com.atomist.rug.functions.travis.RestartBuildFunction
+com.atomist.rug.functions.travis.BuildRugFunction
+com.atomist.rug.functions.travis.EnableRepoFunction
+com.atomist.rug.functions.travis.DisableRepoFunction
+com.atomist.rug.functions.travis.EncryptFunction

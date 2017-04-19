@@ -1,6 +1,5 @@
 package com.atomist.rug.functions.travis
 
-import com.atomist.rug.runtime.Rug
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
 import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
@@ -10,12 +9,10 @@ import org.springframework.http.HttpHeaders
 /**
   * Restart a travis-ci build
   */
-class RestartBuild
+class RestartBuildFunction
   extends AnnotatedRugFunction
-    with Rug
-    with LazyLogging{
-
-  private val travisEndpoints = new RealTravisEndpoints
+    with TravisFunction
+    with LazyLogging {
 
   @RugFunction(name = "restart-travis-build", description = "Restarts a travis build",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
@@ -25,7 +22,7 @@ class RestartBuild
 
       val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
       val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
-      val headers: HttpHeaders = TravisEndpoints.authHeaders(api, travisToken)
+      val headers: HttpHeaders = TravisEndpoints.authHeaders(travisToken)
       try {
         travisEndpoints.postRestartBuild(api, headers, buildId)
         FunctionResponse(Status.Success, Option(s"Successfully restarted build `$buildId` on Travis CI"), None, None)

@@ -6,58 +6,40 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
 import javax.crypto.Cipher
 
-import com.atomist.rug.runtime.Rug
+import com.atomist.rug.spi.{FunctionResponse, StringBodyOption}
 import com.atomist.rug.spi.Handlers.Status
-import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
-import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
-import com.typesafe.scalalogging.LazyLogging
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
 import org.springframework.http.HttpHeaders
 
-object Encrypt {
-
-  Security.addProvider(new BouncyCastleProvider)
-
-}
-
 /**
-  * Use Travis API to encrypt strings using the repository public key.
+  * Encrypt values for Travis CI
   */
-class Encrypt extends AnnotatedRugFunction
-  with Rug
-  with LazyLogging {
+case class Encrypt(travisEndpoints: TravisEndpoints) {
 
-  private val travisEndpoints = new RealTravisEndpoints
-
-  /**
+  /** Fetch Travis public key for repo and encrypt content
     *
     * @param owner   GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo    name of the repo to enable
     * @param org     Travis CI ".com" or ".org" endpoint
     * @param content content to encrypt
     * @param token   GitHub token with "repo" scope for `owner`/`repo`
-    * @return
+    * @return FunctionResponse with encrypted content in the body
     */
-  @RugFunction(name = "travis-encrypt", description = "Encrypts a value using Travis CI repo public key",
-    tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
-  def encrypt(
-               @Parameter(name = "owner") owner: String,
-               @Parameter(name = "repo") repo: String,
-               @Parameter(name = "org") org: String,
-               @Parameter(name = "content") content: String,
-               @Secret(name = "user_token", path = "github://user_token?scopes=repo") token: String
-             ): FunctionResponse = {
-
+  def tryEncrypt(owner: String,
+                 repo: String,
+                 org: String,
+                 content: String,
+                 token: String): FunctionResponse = {
     val repoSlug = s"$owner/$repo"
     try {
       val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
       val headers = if (TravisAPIEndpoint.isPublic(org)) {
-        TravisEndpoints.headers(api)
+        TravisEndpoints.headers
       } else {
         val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
-        TravisEndpoints.authHeaders(api, travisToken)
+        TravisEndpoints.authHeaders(travisToken)
       }
       val encryptedContent = encryptString(repoSlug, api, headers, content)
       FunctionResponse(
@@ -66,8 +48,7 @@ class Encrypt extends AnnotatedRugFunction
         None,
         StringBodyOption(encryptedContent)
       )
-    }
-    catch {
+    } catch {
       case e: Exception =>
         FunctionResponse(
           Status.Failure,
@@ -78,12 +59,10 @@ class Encrypt extends AnnotatedRugFunction
     }
   }
 
-  def encryptString(
-                     repoSlug: String,
-                     api: TravisAPIEndpoint,
-                     headers: HttpHeaders,
-                     content: String
-                   ): String = {
+  def encryptString(repoSlug: String,
+                    api: TravisAPIEndpoint,
+                    headers: HttpHeaders,
+                    content: String): String = {
 
     val key = travisEndpoints.getRepoKey(api, headers, repoSlug)
 
@@ -99,4 +78,10 @@ class Encrypt extends AnnotatedRugFunction
 
     Base64.getEncoder.encodeToString(rsaCipher.doFinal(content.getBytes()))
   }
+}
+
+object Encrypt {
+
+  Security.addProvider(new BouncyCastleProvider)
+
 }

@@ -1,6 +1,7 @@
-# rug-functions-travis
+# Atomist 'rug-functions-travis'
 
-[![Build Status](https://travis-ci.org/atomist-rugs/rug-functions-travis.svg?branch=master)](https://travis-ci.org/atomist-rugs/rug-functions-travis)
+[![Build Status](https://travis-ci.org/atomist/rug-functions-travis.svg?branch=master)](https://travis-ci.org/atomist/rug-functions-travis)
+[![Slack Status](https://join.atomist.com/badge.svg)](https://join.atomist.com)
 
 Rug functions that hit the [Travis CI][travis-ci] API.  Currently
 contains the following Rug functions:
@@ -12,6 +13,36 @@ contains the following Rug functions:
 -   `travis-encrypt(owner, repo, org, content, token)`
 
 [travis-ci]: https://travis-ci.org/
+
+These functions are intended to be called from Rug event and command
+handlers, which are usually written in [TypeScript][ts].  Here is an
+example of how you would add calling the `travis-enable-repo` Rug
+function to enable builds on Travis CI for the repo, adding it to the
+plan returned by a command handler.
+
+```typescript
+plan.add(PlanUtils.execute("travis-enable-repo", {
+    repo: "your-public-repo",
+    owner: "your-github-org",
+    org: ".org",
+}));
+```
+
+[ts]: https://www.typescriptlang.org/
+
+Please see the [Atomist Documentation][docs] for more information.
+
+[event]: http://docs.atomist.com/
+
+## Support
+
+General support questions should be discussed in the `#support`
+channel on our community Slack team
+at [atomist-community.slack.com][slack].
+
+If you find a problem, please create an [issue][].
+
+[issue]: https://github.com/atomist/rug-functions-travis/issues
 
 ## Building
 
@@ -38,3 +69,10 @@ automatically create a GitHub release using the tag name for the
 release and the comment provided on the annotated tag as the contents
 of the release notes.  It will also automatically upload the needed
 artifacts.
+
+---
+Created by [Atomist][atomist].
+Need Help?  [Join our Slack team][slack].
+
+[atomist]: https://www.atomist.com/
+[slack]: https://join.atomist.com/

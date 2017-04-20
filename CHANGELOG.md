@@ -7,11 +7,49 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist-rugs/rug-function-travis/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.13.0...HEAD
+
+## [0.13.0] - 2017-04-20
+
+[0.13.0]: https://github.com/atomist/rug-functions-travis/compare/0.12.0...0.13.0
+
+Disable release
+
+### Fixed
+
+-   Unhide `travis-disable-repo` [#4][4]
+
+[4]: https://github.com/atomist/rug-functions-travis/issues/4
+
+### Changed
+
+-   Make more testable, add tests
+-   Build improvements
+-   Changes required for move to atomist GitHub org
+
+## [0.12.0] - 2017-04-14
+
+[0.12.0]: https://github.com/atomist/rug-functions-travis/compare/0.11.0...0.12.0
+
+Public release
+
+### Changed
+
+-   Do not authenticate to fetch public key from public repo
+
+## [0.11.0] - 2017-04-14
+
+[0.11.0]: https://github.com/atomist/rug-functions-travis/compare/0.10.0...0.11.0
+
+Scopes release
+
+### Fixed
+
+-   GitHub token scope
 
 ## [0.8.0] - 2017-04-12
 
-[0.8.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.7.0...0.8.0
+[0.8.0]: https://github.com/atomist/rug-functions-travis/compare/0.7.0...0.8.0
 
 Enable and encrypt release
 
@@ -25,7 +63,7 @@ Enable and encrypt release
 
 ## [0.7.0] - 2017-04-11
 
-[0.7.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.6.1...0.7.0
+[0.7.0]: https://github.com/atomist/rug-functions-travis/compare/0.6.1...0.7.0
 
 Papa's got a brand new Rug release
 
@@ -35,7 +73,7 @@ Papa's got a brand new Rug release
 
 ## [0.6.1] - 2017-03-30
 
-[0.6.1]: https://github.com/atomist-rugs/rug-function-travis/compare/0.6.0...0.6.1
+[0.6.1]: https://github.com/atomist/rug-functions-travis/compare/0.6.0...0.6.1
 
 Secret release
 
@@ -45,7 +83,7 @@ Secret release
 
 ## [0.6.0] - 2017-03-30
 
-[0.6.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.5.0...0.6.0
+[0.6.0]: https://github.com/atomist/rug-functions-travis/compare/0.5.0...0.6.0
 
 Secret release
 
@@ -55,7 +93,7 @@ Secret release
 
 ## [0.5.0] - 2017-03-30
 
-[0.5.0]: https://github.com/atomist-rugs/rug-function-travis/compare/0.4.0...0.5.0
+[0.5.0]: https://github.com/atomist/rug-functions-travis/compare/0.4.0...0.5.0
 
 Rug build release
 

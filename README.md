@@ -32,7 +32,7 @@ plan.add(PlanUtils.execute("travis-enable-repo", {
 
 Please see the [Atomist Documentation][docs] for more information.
 
-[event]: http://docs.atomist.com/
+[docs]: http://docs.atomist.com/
 
 ## Support
 

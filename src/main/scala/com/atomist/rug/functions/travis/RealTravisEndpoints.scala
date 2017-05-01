@@ -5,9 +5,10 @@ import java.util
 import java.util.Collections
 
 import scala.collection.JavaConverters._
-
 import org.springframework.http.{HttpHeaders, HttpMethod, HttpStatus, RequestEntity}
 import org.springframework.web.client.{HttpClientErrorException, RestTemplate}
+
+import scala.util.control.Breaks.{break, breakable}
 
 /**
   *  Implement TravisEndpoints using real Travis CI endpoints
@@ -76,7 +77,22 @@ class RealTravisEndpoints extends TravisEndpoints {
     } catch {
       case he: HttpClientErrorException if he.getStatusCode == HttpStatus.NOT_FOUND =>
         postUsersSync(api, headers)
-        getRepo(api, headers, repoSlug)
+        var repoId = 0
+        breakable {
+          for (i <- 0 to 30) {
+            try {
+              repoId = getRepo(api, headers, repoSlug)
+              break
+            }
+            catch {
+              case he: HttpClientErrorException if he.getStatusCode == HttpStatus.NOT_FOUND =>
+                print(s"  Waiting for repository to become available ($i)")
+                Thread.sleep(1000L)
+              case _: Throwable => break
+            }
+          }
+        }
+        repoId
     }
     id
   }

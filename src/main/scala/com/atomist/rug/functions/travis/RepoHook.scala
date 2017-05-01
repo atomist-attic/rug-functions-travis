@@ -4,12 +4,14 @@ import java.util
 
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.{FunctionResponse, StringBodyOption}
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.http.HttpHeaders
 
 /**
   * Enable and disable repositories in Travis CI
   */
-case class RepoHook(travisEndpoints: TravisEndpoints) {
+case class RepoHook(travisEndpoints: TravisEndpoints)
+  extends LazyLogging {
 
   def tryRepoHook(active: Boolean, owner: String, repo: String, githubToken: String, org: String): FunctionResponse = {
     val repoSlug = s"$owner/$repo"
@@ -19,6 +21,7 @@ case class RepoHook(travisEndpoints: TravisEndpoints) {
       FunctionResponse(Status.Success, Option(s"Successfully ${activeString}d Travis CI for $repoSlug"), None, None)
     } catch {
       case e: Exception =>
+        logger.error(e.getMessage, e)
         FunctionResponse(
           Status.Failure,
           Some(s"Failed to $activeString Travis CI for $repoSlug"),

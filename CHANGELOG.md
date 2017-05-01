@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.13.0...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.14.0...HEAD
+
+## [0.14.0] - 2017-05-01
+
+[0.14.0]: https://github.com/atomist/rug-functions-travis/compare/0.13.0...0.14.0
+
+### Changed
+
+-   Add some exception logging to figure out why enable-repo tends to fail
 
 ## [0.13.0] - 2017-04-20
 

@@ -8,6 +8,7 @@ import javax.crypto.Cipher
 
 import com.atomist.rug.spi.{FunctionResponse, StringBodyOption}
 import com.atomist.rug.spi.Handlers.Status
+import com.typesafe.scalalogging.LazyLogging
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
@@ -16,7 +17,7 @@ import org.springframework.http.HttpHeaders
 /**
   * Encrypt values for Travis CI
   */
-case class Encrypt(travisEndpoints: TravisEndpoints) {
+case class Encrypt(travisEndpoints: TravisEndpoints) extends LazyLogging {
 
   /** Fetch Travis public key for repo and encrypt content
     *
@@ -50,11 +51,12 @@ case class Encrypt(travisEndpoints: TravisEndpoints) {
       )
     } catch {
       case e: Exception =>
+        logger.error(s"failed to encrypt content for $repoSlug: ${e.getMessage}", e)
         FunctionResponse(
           Status.Failure,
           Some(s"Failed to encrypt content for $repoSlug"),
           None,
-          StringBodyOption(e.getMessage)
+          StringBodyOption(s"${e.getMessage}\n$e")
         )
     }
   }

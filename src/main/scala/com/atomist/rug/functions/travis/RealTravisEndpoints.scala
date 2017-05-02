@@ -4,18 +4,45 @@ import java.net.URI
 import java.util
 import java.util.Collections
 
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try, Random}
 import org.springframework.http.{HttpHeaders, HttpMethod, HttpStatus, RequestEntity}
 import org.springframework.web.client.{HttpClientErrorException, RestTemplate}
-
-import scala.util.control.Breaks.{break, breakable}
 
 /**
   *  Implement TravisEndpoints using real Travis CI endpoints
   */
-class RealTravisEndpoints extends TravisEndpoints {
+class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
 
   private val restTemplate: RestTemplate = new RestTemplate()
+
+  import RealTravisEndpoints._
+
+  /**
+    * Implement retry with exponential backoff and jiggle.  Each subsequent invocation
+    * will wait double + jiggle of the previous.  Defaults for retries and wait result
+    * in a mean retry period of about 50 seconds.
+    *
+    * @param opName name of operation, used for logging
+    * @param n how many attempts to make
+    * @param wait amount of time to wait
+    * @param fn operation to retry
+    * @tparam T return type pf fn
+    * @return return value from successful call of fn
+    */
+  @annotation.tailrec
+  private[travis] final def retry[T](opName: String, n: Int = 9, wait: Long = 0L)(fn: => T): T = {
+    Thread.sleep(wait)
+    Try { fn } match {
+      case Success(x) => x
+      case Failure(e) if n > 0 =>
+        logger.warn(s"$opName attempt failed (${e.getMessage}), $n attempts left", e)
+        retry(opName, n - 1, wait * 2L + rng.nextInt(100))(fn)
+      case Failure(e) => throw e
+    }
+  }
 
   def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String = {
     val request = new RequestEntity[util.Map[String, Object]](
@@ -23,7 +50,9 @@ class RealTravisEndpoints extends TravisEndpoints {
       HttpMethod.GET,
       URI.create(s"https://api.travis-ci.${endpoint.tld}/repos/$repoSlug/key")
     )
-    val responseEntity = restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    val responseEntity = retry("getRepoKey") {
+      restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    }
     responseEntity.getBody.get("key").asInstanceOf[String]
   }
 
@@ -36,7 +65,7 @@ class RealTravisEndpoints extends TravisEndpoints {
       HttpMethod.PUT,
       URI.create(url)
     )
-    restTemplate.put(url, request)
+    retry("putHook") { restTemplate.put(url, request) }
   }
 
   def postUsersSync(endpoint: TravisAPIEndpoint, headers: HttpHeaders): Unit = {
@@ -45,59 +74,24 @@ class RealTravisEndpoints extends TravisEndpoints {
       HttpMethod.POST,
       URI.create(s"https://api.travis-ci.${endpoint.tld}/users/sync")
     )
-    try {
+    retry("postUsersSync") {
       restTemplate.exchange(request, classOf[util.Map[String, Object]])
-    }
-    catch {
-      case he: HttpClientErrorException if he.getStatusCode == HttpStatus.CONFLICT =>
-    }
-    import scala.util.control.Breaks._
-    breakable {
-      for (i <- 0 to 30) {
-        try {
-          val responseEntity = restTemplate.exchange(request, classOf[util.Map[String, Object]])
-          if (responseEntity.getStatusCode == HttpStatus.OK) {
-            break
-          }
-        }
-        catch {
-          case he: HttpClientErrorException if he.getStatusCode == HttpStatus.CONFLICT =>
-            print(s"  Waiting for repositories to sync ($i)")
-            Thread.sleep(1000L)
-          case _: Throwable => break
-        }
-      }
     }
   }
 
   def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String ): Int = {
-
     val id: Int = try {
-      getRepo(api, headers, repoSlug)
+      getRepoOnce(api, headers, repoSlug)
     } catch {
       case he: HttpClientErrorException if he.getStatusCode == HttpStatus.NOT_FOUND =>
+        logger.warn(s"$repoSlug not found on first attempt, executing sync and retrying get")
         postUsersSync(api, headers)
-        var repoId = 0
-        breakable {
-          for (i <- 0 to 30) {
-            try {
-              repoId = getRepo(api, headers, repoSlug)
-              break
-            }
-            catch {
-              case he: HttpClientErrorException if he.getStatusCode == HttpStatus.NOT_FOUND =>
-                print(s"  Waiting for repository to become available ($i)")
-                Thread.sleep(1000L)
-              case _: Throwable => break
-            }
-          }
-        }
-        repoId
+        getRepo(api, headers, repoSlug)
     }
     id
   }
 
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = {
+  private def getRepoOnce(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.GET,
@@ -107,6 +101,9 @@ class RealTravisEndpoints extends TravisEndpoints {
     val repoObject: util.Map[String, Object] = responseEntity.getBody.get("repo").asInstanceOf[util.Map[String, Object]]
     repoObject.get("id").asInstanceOf[Int]
   }
+
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int =
+    retry("getRepo") { getRepoOnce(endpoint, headers, repoSlug) }
 
   // Use evil var to cache token because Travis CI does not want you to
   // repeatedly get new tokens.
@@ -122,7 +119,9 @@ class RealTravisEndpoints extends TravisEndpoints {
         HttpMethod.POST,
         URI.create(s"https://api.travis-ci.${endpoint.tld}/auth/github")
       )
-      val responseEntity = restTemplate.exchange(request, classOf[util.Map[String, String]])
+      val responseEntity = retry("postAuthGitHub") {
+        restTemplate.exchange(request, classOf[util.Map[String, String]])
+      }
       val travisToken = responseEntity.getBody.get("access_token")
       travisTokens.put(githubToken, travisToken)
       travisToken
@@ -134,7 +133,9 @@ class RealTravisEndpoints extends TravisEndpoints {
       HttpMethod.POST,
       URI.create(s"https://api.travis-ci.${endpoint.tld}/builds/$number/restart")
     )
-    restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    retry("postRestartBuild") {
+      restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    }
   }
 
   def postStartBuild(
@@ -158,6 +159,14 @@ class RealTravisEndpoints extends TravisEndpoints {
       HttpMethod.POST,
       URI.create(urlString)
     )
-    restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    retry("postStartBuild") {
+      restTemplate.exchange(request, classOf[util.Map[String, Object]])
+    }
   }
+}
+
+object RealTravisEndpoints {
+
+  private val rng = Random
+
 }

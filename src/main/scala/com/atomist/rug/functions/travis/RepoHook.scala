@@ -21,7 +21,7 @@ case class RepoHook(travisEndpoints: TravisEndpoints)
       FunctionResponse(Status.Success, Option(s"Successfully ${activeString}d Travis CI for $repoSlug"), None, None)
     } catch {
       case e: Exception =>
-        logger.error(e.getMessage, e)
+        logger.error(s"$activeString for $owner/$repo failed: ${e.getMessage}", e)
         FunctionResponse(
           Status.Failure,
           Some(s"Failed to $activeString Travis CI for $repoSlug"),

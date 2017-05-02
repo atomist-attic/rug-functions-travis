@@ -7,15 +7,33 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.14.0...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.14.1...HEAD
+
+### Changed
+
+-   Updated rug dependency to 1.0.0-m.2
+-   Silence logging in tests
+
+### Added
+
+-   Retry to all Travis API calls
+-   More exception logging
+
+## [0.14.1] - 2017-05-02
+
+[0.14.1]: https://github.com/atomist/rug-functions-travis/compare/0.14.0...0.14.1
+
+### Changed
+
+-   Retry of repo get in `getRepoRetryingWithSync`
 
 ## [0.14.0] - 2017-05-01
 
 [0.14.0]: https://github.com/atomist/rug-functions-travis/compare/0.13.0...0.14.0
 
-### Changed
+### Added
 
--   Add some exception logging to figure out why enable-repo tends to fail
+-   Exception logging to figure out why enable-repo tends to fail
 
 ## [0.13.0] - 2017-04-20
 

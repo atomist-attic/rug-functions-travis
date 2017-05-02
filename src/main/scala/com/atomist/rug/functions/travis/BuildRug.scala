@@ -2,12 +2,13 @@ package com.atomist.rug.functions.travis
 
 import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.{FunctionResponse, StringBodyOption}
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.http.HttpHeaders
 
 /**
   * Build any Rug project on Travis CI using a single repo
   */
-case class BuildRug(travisEndpoints: TravisEndpoints) {
+case class BuildRug(travisEndpoints: TravisEndpoints) extends LazyLogging {
 
   /** Build any Rug project using a single GitHub repo's Travis CI build
     *
@@ -61,8 +62,9 @@ case class BuildRug(travisEndpoints: TravisEndpoints) {
       FunctionResponse(Status.Success, Option(s"Successfully started build for $owner/$repo on Travis CI"), None, None)
     } catch {
       case e: Exception =>
+        logger.error(s"starting build for $owner/$repo failed: ${e.getMessage}", e)
         FunctionResponse(Status.Failure, Some(s"Failed to start build for $owner/$repo on Travis CI"),
-          None, StringBodyOption(e.getMessage))
+          None, StringBodyOption(s"${e.getMessage}\n$e"))
     }
   }
 

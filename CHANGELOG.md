@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.14.1...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.15.0...HEAD
+
+## [0.15.0] - 2017-05-02
+
+[0.15.0]: https://github.com/atomist/rug-functions-travis/compare/0.14.1...0.15.0
+
+Retry release
 
 ### Changed
 

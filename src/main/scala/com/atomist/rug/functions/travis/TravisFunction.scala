@@ -11,3 +11,9 @@ trait TravisFunction extends Rug {
   lazy val travisEndpoints: TravisEndpoints = new RealTravisEndpoints
 
 }
+
+object TravisFunction {
+
+  final val githubTokenPath = "github://user_token?scopes=repo,read:org,user:email"
+
+}

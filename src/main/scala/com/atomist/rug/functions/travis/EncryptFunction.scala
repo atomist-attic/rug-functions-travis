@@ -16,7 +16,7 @@ class EncryptFunction
     * @param repo    name of the repo to enable
     * @param org     Travis CI ".com" or ".org" endpoint
     * @param content content to encrypt
-    * @param token   GitHub token with "repo" scope for `owner`/`repo`
+    * @param githubToken   GitHub token with proper scopes for Travis CI
     * @return `content` encrypted using the Travis CI repo public key
     */
   @RugFunction(name = "travis-encrypt", description = "Encrypts a value using Travis CI repo public key",
@@ -25,7 +25,7 @@ class EncryptFunction
               @Parameter(name = "repo") repo: String,
               @Parameter(name = "org") org: String,
               @Parameter(name = "content") content: String,
-              @Secret(name = "user_token", path = "github://user_token?scopes=repo") token: String
-             ): FunctionResponse = Encrypt(travisEndpoints).tryEncrypt(owner, repo, org, content, token)
+              @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String
+             ): FunctionResponse = Encrypt(travisEndpoints).tryEncrypt(owner, repo, org, content, githubToken)
 
 }

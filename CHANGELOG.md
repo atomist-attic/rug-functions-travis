@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Retry to all Travis API calls
 -   More exception logging
 
+### Fixed
+
+-   Scopes required by GitHub token
+
 ## [0.14.1] - 2017-05-02
 
 [0.14.1]: https://github.com/atomist/rug-functions-travis/compare/0.14.0...0.14.1

@@ -34,6 +34,29 @@ Please see the [Atomist Documentation][docs] for more information.
 
 [docs]: http://docs.atomist.com/
 
+## Authentication
+
+Authenticating against the Travis API requires a GitHub token with
+proper scopes.  The Travis CI public repository (`.org`) and private
+repository (`.com`) endpoints require different scopes.  You can
+always get the current list of scopes for each endpoint directly from
+Travis CI by running the command below, changing `ENDPOINT` to `com`
+for private repositories or `org` for public repositories.
+
+```
+$ curl -s -H 'Content-Type: application/json' -H 'User-Agent: CurlClient/1.0.0' -H 'Accept: application/vnd.travis-ci.2+json' https://api.travis-ci.ENDPOINT/config | jq .config.github.scopes
+```
+
+All of the Travis Rug functions require a GitHub token, accessed
+via [Rug Secrets][secrets], with the "repo", "read:org", and
+"user:email" scopes, which is a union of the scopes required by the
+`.org` and `.com` endpoints.  The token *may* need to be a from a
+GitHub user who is an owner of the repository.  If the owner of the
+repository is a GitHub organization, this means the token must be from
+a user in the Owner group.
+
+[secrets]: http://docs.atomist.com/user-guide/rug/secrets/ (Rug Secrets)
+
 ## Support
 
 General support questions should be discussed in the `#support`

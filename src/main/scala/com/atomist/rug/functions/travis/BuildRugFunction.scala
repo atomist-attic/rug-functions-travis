@@ -22,7 +22,7 @@ class BuildRugFunction
     * @param mavenBaseUrl URL of Maven repository without trailing Slack team ID
     * @param mavenUser user with write access to Maven repository
     * @param mavenToken API token for Maven user
-    * @param userToken GitHub token with "repo" scope for `owner`/`repo`
+    * @param githubToken GitHub token with proper scopes for Travis CI
     * @return Rug function reponse indicating success or failure
     */
   @RugFunction(name = "travis-build-rug", description = "builds a Rug archive on Travis CI using rug-build",
@@ -36,7 +36,7 @@ class BuildRugFunction
             @Secret(name = "mavenBaseUrl", path = "secret://team?path=maven_base_url") mavenBaseUrl: String,
             @Secret(name = "mavenUser", path = "secret://team?path=maven_user") mavenUser: String,
             @Secret(name = "mavenToken", path = "secret://team?path=maven_token") mavenToken: String,
-            @Secret(name = "userToken", path = "github://user_token?scopes=repo") userToken: String): FunctionResponse =
+            @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String): FunctionResponse =
     BuildRug(travisEndpoints).build(owner, repo, version, teamId, gitRef, travisToken, mavenBaseUrl,
-      mavenUser, mavenToken, userToken)
+      mavenUser, mavenToken, githubToken)
 }

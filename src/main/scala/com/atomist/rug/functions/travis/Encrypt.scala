@@ -17,30 +17,25 @@ import org.springframework.http.HttpHeaders
 /**
   * Encrypt values for Travis CI
   */
-case class Encrypt(travisEndpoints: TravisEndpoints) extends LazyLogging {
+case class Encrypt(travisEndpoints: TravisEndpoints, gitHubRepo: GitHubRepo) extends LazyLogging {
 
   /** Fetch Travis public key for repo and encrypt content
     *
-    * @param owner   GitHub owner, i.e., user or organization, of the repo to enable
-    * @param repo    name of the repo to enable
-    * @param org     Travis CI ".com" or ".org" endpoint
+    * @param repoSlug  repository "owner/name" to encrypt content for
     * @param content content to encrypt
-    * @param token   GitHub token with "repo" scope for `owner`/`repo`
+    * @param githubToken   GitHub token with "repo" scope for `owner`/`repo`
     * @return FunctionResponse with encrypted content in the body
     */
-  def tryEncrypt(owner: String,
-                 repo: String,
-                 org: String,
+  def tryEncrypt(repoSlug: RepoSlug,
                  content: String,
-                 token: String): FunctionResponse = {
-    val repoSlug = s"$owner/$repo"
+                 githubToken: GitHubToken): FunctionResponse = {
     try {
-      val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
-      val headers = if (TravisAPIEndpoint.isPublic(org)) {
-        TravisEndpoints.headers
-      } else {
-        val travisToken: String = travisEndpoints.postAuthGitHub(api, token)
-        TravisEndpoints.authHeaders(travisToken)
+      val api: TravisAPIEndpoint = gitHubRepo.travisEndpoint(repoSlug, githubToken)
+      val headers = api match {
+        case TravisOrgEndpoint => TravisEndpoints.headers
+        case TravisComEndpoint =>
+          val travisToken = travisEndpoints.postAuthGitHub(api, githubToken)
+          TravisEndpoints.authHeaders(travisToken)
       }
       val encryptedContent = encryptString(repoSlug, api, headers, content)
       FunctionResponse(
@@ -61,7 +56,7 @@ case class Encrypt(travisEndpoints: TravisEndpoints) extends LazyLogging {
     }
   }
 
-  def encryptString(repoSlug: String,
+  def encryptString(repoSlug: RepoSlug,
                     api: TravisAPIEndpoint,
                     headers: HttpHeaders,
                     content: String): String = {

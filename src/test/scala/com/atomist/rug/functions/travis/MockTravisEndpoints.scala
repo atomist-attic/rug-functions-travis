@@ -54,22 +54,22 @@ class MockTravisEndpoints extends TravisEndpoints {
 
   import MockTravisEndpoints._
 
-  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String = mockRepoKey
+  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): String = mockRepoKey
 
   def putHook(endpoint: TravisAPIEndpoint, headers: HttpHeaders, body: util.HashMap[String, Object]): Unit = Unit
 
   def postUsersSync(endpoint: TravisAPIEndpoint, headers: HttpHeaders): Unit = Unit
 
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = mockRepoId
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int = mockRepoId
 
-  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: String): String = mockTravisToken
+  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: GitHubToken): TravisToken = TravisToken(mockTravisToken)
 
   def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit = Unit
 
-  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String,
+  def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug,
                      message: String, envVars: Seq[String]): Unit = Unit
 
-  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String ): Int =
+  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int =
     getRepo(api, headers, repoSlug)
 
 }

@@ -16,7 +16,6 @@ class EnableRepoFunction
     *
     * @param owner GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo name of the repo to enable
-    * @param org Travis CI ".com" or ".org" endpoint
     * @param githubToken GitHub token with proper scopes for Travis CI
     * @return Rug FunctionResponse
     */
@@ -25,11 +24,11 @@ class EnableRepoFunction
   def enable(
               @Parameter(name = "owner") owner: String,
               @Parameter(name = "repo") repo: String,
-              @Parameter(name = "org") org: String,
               @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String
             ): FunctionResponse = {
     val enableTravis = true
-    RepoHook(travisEndpoints).tryRepoHook(enableTravis, owner, repo, githubToken, org)
+    val repoSlug = RepoSlug(owner, repo)
+    RepoHook(travisEndpoints, gitHubRepo).tryRepoHook(enableTravis, repoSlug, GitHubToken(githubToken))
   }
 
 }

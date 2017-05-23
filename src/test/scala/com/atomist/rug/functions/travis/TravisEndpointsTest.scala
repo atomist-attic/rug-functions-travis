@@ -41,12 +41,12 @@ class TravisEndpointsTest extends FlatSpec with Matchers {
   }
 
   "authHeaders" should "return more headers" in {
-    TravisEndpoints.headers.size() + 1 === TravisEndpoints.authHeaders("phonytoken").size()
+    TravisEndpoints.headers.size() + 1 === TravisEndpoints.authHeaders(TravisToken("phonytoken")).size()
   }
 
   it should "include the token in the authorization header" in {
     val phonyToken = "notarealtokenforanything"
-    val authHeaders = TravisEndpoints.authHeaders(phonyToken).get("Authorization")
+    val authHeaders = TravisEndpoints.authHeaders(TravisToken(phonyToken)).get("Authorization")
     authHeaders.size() === 1
     val tokenRE = s".*\\b$phonyToken\\b.*".r
     authHeaders.get(0) match {

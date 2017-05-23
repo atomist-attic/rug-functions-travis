@@ -10,6 +10,8 @@ trait TravisFunction extends Rug {
 
   lazy val travisEndpoints: TravisEndpoints = new RealTravisEndpoints
 
+  lazy val gitHubRepo: GitHubRepo = new RealGitHubRepo
+
 }
 
 object TravisFunction {

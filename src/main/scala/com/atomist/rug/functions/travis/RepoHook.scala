@@ -10,18 +10,17 @@ import org.springframework.http.HttpHeaders
 /**
   * Enable and disable repositories in Travis CI
   */
-case class RepoHook(travisEndpoints: TravisEndpoints)
+case class RepoHook(travisEndpoints: TravisEndpoints, gitHubRepo: GitHubRepo)
   extends LazyLogging {
 
-  def tryRepoHook(active: Boolean, owner: String, repo: String, githubToken: String, org: String): FunctionResponse = {
-    val repoSlug = s"$owner/$repo"
+  def tryRepoHook(active: Boolean, repoSlug: RepoSlug, githubToken: GitHubToken): FunctionResponse = {
     val activeString = if (active) "enable" else "disable"
     try {
-      authPutHook(active, repoSlug, githubToken, org)
+      authPutHook(active, repoSlug, githubToken)
       FunctionResponse(Status.Success, Option(s"Successfully ${activeString}d Travis CI for $repoSlug"), None, None)
     } catch {
       case e: Exception =>
-        logger.error(s"$activeString for $owner/$repo failed: ${e.getMessage}", e)
+        logger.error(s"$activeString for $repoSlug failed: ${e.getMessage}", e)
         FunctionResponse(
           Status.Failure,
           Some(s"Failed to $activeString Travis CI for $repoSlug"),
@@ -31,10 +30,10 @@ case class RepoHook(travisEndpoints: TravisEndpoints)
     }
   }
 
-  private def authPutHook(active: Boolean, repoSlug: String, githubToken: String, org: String): Unit = {
-    val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(org)
-    val token: String = travisEndpoints.postAuthGitHub(api, githubToken)
-    val headers: HttpHeaders = TravisEndpoints.authHeaders(token)
+  private def authPutHook(active: Boolean, repoSlug: RepoSlug, githubToken: GitHubToken): Unit = {
+    val api = gitHubRepo.travisEndpoint(repoSlug, githubToken)
+    val token = travisEndpoints.postAuthGitHub(api, githubToken)
+    val headers = TravisEndpoints.authHeaders(token)
 
     val id: Int = travisEndpoints.getRepoRetryingWithSync(api, headers, repoSlug)
 

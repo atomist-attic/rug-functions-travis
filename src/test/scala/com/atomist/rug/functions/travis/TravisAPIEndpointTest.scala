@@ -15,12 +15,20 @@ class TravisAPIEndpointTest extends FlatSpec with Matchers {
     assert(stringToTravisEndpoint(".org") === TravisOrgEndpoint)
   }
 
+  it should "accept public" in {
+    assert(stringToTravisEndpoint("public") === TravisOrgEndpoint)
+  }
+
   it should "accept com" in {
     assert(stringToTravisEndpoint("com") === TravisComEndpoint)
   }
 
   it should "accept .com" in {
     assert(stringToTravisEndpoint(".com") === TravisComEndpoint)
+  }
+
+  it should "accept private" in {
+    assert(stringToTravisEndpoint("private") === TravisComEndpoint)
   }
 
   it should "throw an exception if not given a valid API type" in {

@@ -14,7 +14,6 @@ class EncryptFunction
     *
     * @param owner   GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo    name of the repo to enable
-    * @param org     Travis CI ".com" or ".org" endpoint
     * @param content content to encrypt
     * @param githubToken   GitHub token with proper scopes for Travis CI
     * @return `content` encrypted using the Travis CI repo public key
@@ -23,9 +22,11 @@ class EncryptFunction
     tags = Array(new Tag(name = "travis-ci"), new Tag(name = "ci")))
   def encrypt(@Parameter(name = "owner") owner: String,
               @Parameter(name = "repo") repo: String,
-              @Parameter(name = "org") org: String,
               @Parameter(name = "content") content: String,
               @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String
-             ): FunctionResponse = Encrypt(travisEndpoints).tryEncrypt(owner, repo, org, content, githubToken)
+             ): FunctionResponse = {
+    val repoSlug = RepoSlug(owner, repo)
+    Encrypt(travisEndpoints, gitHubRepo).tryEncrypt(repoSlug, content, GitHubToken(githubToken))
+  }
 
 }

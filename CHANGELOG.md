@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.15.0...HEAD
 
+### Changed
+
+-   Determine Travis CI endpoint to use by querying GitHub for repo visibility
+
 ## [0.15.0] - 2017-05-02
 
 [0.15.0]: https://github.com/atomist/rug-functions-travis/compare/0.14.1...0.15.0

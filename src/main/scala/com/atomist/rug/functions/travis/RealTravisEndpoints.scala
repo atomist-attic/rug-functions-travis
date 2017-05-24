@@ -7,7 +7,6 @@ import java.util.Collections
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try, Random}
 import org.springframework.http.{HttpHeaders, HttpMethod, HttpStatus, RequestEntity}
 import org.springframework.web.client.{HttpClientErrorException, RestTemplate}
 
@@ -18,33 +17,9 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
 
   private val restTemplate: RestTemplate = new RestTemplate()
 
-  import RealTravisEndpoints._
+  import Retry._
 
-  /**
-    * Implement retry with exponential backoff and jiggle.  Each subsequent invocation
-    * will wait double + jiggle of the previous.  Defaults for retries and wait result
-    * in a mean retry period of about 50 seconds.
-    *
-    * @param opName name of operation, used for logging
-    * @param n how many attempts to make
-    * @param wait amount of time to wait
-    * @param fn operation to retry
-    * @tparam T return type pf fn
-    * @return return value from successful call of fn
-    */
-  @annotation.tailrec
-  private[travis] final def retry[T](opName: String, n: Int = 9, wait: Long = 0L)(fn: => T): T = {
-    Thread.sleep(wait)
-    Try { fn } match {
-      case Success(x) => x
-      case Failure(e) if n > 0 =>
-        logger.warn(s"$opName attempt failed (${e.getMessage}), $n attempts left", e)
-        retry(opName, n - 1, wait * 2L + rng.nextInt(100))(fn)
-      case Failure(e) => throw e
-    }
-  }
-
-  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String = {
+  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): String = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.GET,
@@ -79,7 +54,7 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
     }
   }
 
-  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String ): Int = {
+  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug ): Int = {
     val id: Int = try {
       getRepoOnce(api, headers, repoSlug)
     } catch {
@@ -91,7 +66,7 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
     id
   }
 
-  private def getRepoOnce(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int = {
+  private def getRepoOnce(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.GET,
@@ -102,13 +77,13 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
     repoObject.get("id").asInstanceOf[Int]
   }
 
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int =
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int =
     retry("getRepo") { getRepoOnce(endpoint, headers, repoSlug) }
 
   // Use evil var to cache token because Travis CI does not want you to
   // repeatedly get new tokens.
-  private[travis] var travisTokens: util.Map[String, String] = new util.HashMap[String, String]()
-  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: String): String =
+  private[travis] var travisTokens: util.Map[GitHubToken, TravisToken] = new util.HashMap[GitHubToken, TravisToken]()
+  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: GitHubToken): TravisToken =
     if (travisTokens.containsKey(githubToken)) {
       travisTokens.get(githubToken)
     }
@@ -122,7 +97,8 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
       val responseEntity = retry("postAuthGitHub") {
         restTemplate.exchange(request, classOf[util.Map[String, String]])
       }
-      val travisToken = responseEntity.getBody.get("access_token")
+      val accessToken = responseEntity.getBody.get("access_token")
+      val travisToken = TravisToken(accessToken)
       travisTokens.put(githubToken, travisToken)
       travisToken
     }
@@ -141,7 +117,7 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
   def postStartBuild(
                       endpoint: TravisAPIEndpoint,
                       headers: HttpHeaders,
-                      repoSlug: String,
+                      repoSlug: RepoSlug,
                       message: String,
                       envVars: Seq[String]): Unit = {
     val body = Collections.singletonMap[String, Object]("request", Collections.unmodifiableMap[String, Object](Map(
@@ -150,7 +126,7 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
       "config" -> Collections.singletonMap[String, Object](
         "env", Collections.singletonMap[String, Object]("global", Collections.unmodifiableList[String](envVars.asJava)))
     ).asJava))
-    val escapedRepoSlug = repoSlug.replace("/", "%2F")
+    val escapedRepoSlug = repoSlug.toString.replace("/", "%2F")
     val urlString = s"https://api.travis-ci.${endpoint.tld}/repo/$escapedRepoSlug/requests"
     headers.add("Travis-API-Version", "3")
     val request = new RequestEntity(
@@ -163,10 +139,4 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
       restTemplate.exchange(request, classOf[util.Map[String, Object]])
     }
   }
-}
-
-object RealTravisEndpoints {
-
-  private val rng = Random
-
 }

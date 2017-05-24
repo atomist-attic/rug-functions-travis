@@ -8,9 +8,9 @@ contains the following Rug functions:
 
 -   `restart-travis-build(org, buildId, token)`
 -   `travis-build-rug(owner, repo, version, teamId, gitRef, travisToken, mavenBaseUrl, mavenUser, mavenToken, token)`
--   `travis-enable-repo(owner, repo, org, token)`
--   `travis-disable-repo(owner, repo, org, token)`
--   `travis-encrypt(owner, repo, org, content, token)`
+-   `travis-enable-repo(owner, repo, token)`
+-   `travis-disable-repo(owner, repo, token)`
+-   `travis-encrypt(owner, repo, content, token)`
 
 [travis-ci]: https://travis-ci.org/
 
@@ -23,8 +23,7 @@ plan returned by a command handler.
 ```typescript
 plan.add(PlanUtils.execute("travis-enable-repo", {
     repo: "your-public-repo",
-    owner: "your-github-org",
-    org: ".org",
+    owner: "your-github-org"
 }));
 ```
 

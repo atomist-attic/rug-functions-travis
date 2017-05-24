@@ -13,7 +13,7 @@ trait TravisEndpoints {
     * @param repoSlug repo slug, e.g., "owner/name"
     * @return Repo key
     */
-  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): String
+  def getRepoKey(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): String
 
   /** Enable or disable CI for the repo.
     *
@@ -37,7 +37,7 @@ trait TravisEndpoints {
     * @param repoSlug repo slug, e.g., "owner/name"
     * @return unique repo identifier
     */
-  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String): Int
+  def getRepo(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int
 
   /** Authenticate with Travis using GitHub token.
     *
@@ -47,7 +47,7 @@ trait TravisEndpoints {
     * @param githubToken GitHub personal access token with appropriate scope for endpoint
     * @return Travis token
     */
-  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: String): String
+  def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: GitHubToken): TravisToken
 
   /** Restart the build on Travis CI
     *
@@ -70,7 +70,7 @@ trait TravisEndpoints {
   def postStartBuild(
                       endpoint: TravisAPIEndpoint,
                       headers: HttpHeaders,
-                      repoSlug: String,
+                      repoSlug: RepoSlug,
                       message: String,
                       envVars: Seq[String]): Unit
 
@@ -82,7 +82,7 @@ trait TravisEndpoints {
     * @param repoSlug repo slug, e.g., "atomist-rugs/rug-editors"
     * @return Travis CI repository identifier
     */
-  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: String ): Int
+  def getRepoRetryingWithSync(api: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug): Int
 
 }
 
@@ -105,7 +105,7 @@ object TravisEndpoints {
     * @param token Travis API token returned from TravisEndpoints.postAuthGitHub
     * @return Travis API headers
     */
-  def authHeaders(token: String): HttpHeaders = {
+  def authHeaders(token: TravisToken): HttpHeaders = {
     val hdrs = headers
     hdrs.add("Authorization", s"""token "$token"""")
     hdrs

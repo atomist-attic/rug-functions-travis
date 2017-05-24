@@ -36,7 +36,9 @@ class BuildRugFunction
             @Secret(name = "mavenBaseUrl", path = "secret://team?path=maven_base_url") mavenBaseUrl: String,
             @Secret(name = "mavenUser", path = "secret://team?path=maven_user") mavenUser: String,
             @Secret(name = "mavenToken", path = "secret://team?path=maven_token") mavenToken: String,
-            @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String): FunctionResponse =
-    BuildRug(travisEndpoints).build(owner, repo, version, teamId, gitRef, travisToken, mavenBaseUrl,
-      mavenUser, mavenToken, githubToken)
+            @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String): FunctionResponse = {
+    val repoSlug = RepoSlug(owner, repo)
+    BuildRug(travisEndpoints, gitHubRepo).build(repoSlug, version, teamId, gitRef, TravisToken(travisToken),
+      mavenBaseUrl, mavenUser, mavenToken, GitHubToken(githubToken))
+  }
 }

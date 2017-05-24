@@ -14,7 +14,6 @@ class DisableRepoFunction
     *
     * @param owner GitHub owner, i.e., user or organization, of the repo to enable
     * @param repo name of the repo to disable
-    * @param org Travis CI ".com" or ".org" endpoint
     * @param githubToken GitHub token with proper scopes for Travis CI
     * @return Rug Function Response
     */
@@ -23,11 +22,11 @@ class DisableRepoFunction
   def disable(
                @Parameter(name = "owner") owner: String,
                @Parameter(name = "repo") repo: String,
-               @Parameter(name = "org") org: String,
                @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String
              ): FunctionResponse = {
     val disableTravis = false
-    RepoHook(travisEndpoints).tryRepoHook(disableTravis, owner, repo, githubToken, org)
+    val repoSlug = RepoSlug(owner, repo)
+    RepoHook(travisEndpoints, gitHubRepo).tryRepoHook(disableTravis, repoSlug, GitHubToken(githubToken))
   }
 
 }

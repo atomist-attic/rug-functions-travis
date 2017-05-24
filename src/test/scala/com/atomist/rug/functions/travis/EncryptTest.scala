@@ -31,16 +31,18 @@ class EncryptTest extends FlatSpec with Matchers {
     new String(decrypted, "UTF-8")
   }
 
+  val repoSlug = RepoSlug("noone", "nothing")
+
   it should "encrypt a simple message" in {
-    val encrypt = new Encrypt(new MockTravisEndpoints)
-    val headers = TravisEndpoints.authHeaders("notaghtoken")
-    val result = encrypt.encryptString("noone/nothing", TravisOrgEndpoint, headers, msg)
+    val encrypt = new Encrypt(new MockTravisEndpoints, new MockGitHubRepo)
+    val headers = TravisEndpoints.authHeaders(TravisToken("notaghtoken"))
+    val result = encrypt.encryptString(repoSlug, TravisOrgEndpoint, headers, msg)
     assert(decryptString(result) === msg)
   }
 
   it should "respond with encrypted message in response body" in {
-    val encrypt = new Encrypt(new MockTravisEndpoints)
-    val resp = encrypt.tryEncrypt("noone", "nothing", ".org", msg, "bunktoken")
+    val encrypt = new Encrypt(new MockTravisEndpoints, new MockGitHubRepo)
+    val resp = encrypt.tryEncrypt(repoSlug, msg, GitHubToken("bunktoken"))
     assert(resp.status === Status.Success)
     resp.body match {
       case Some(b) => b.str match {
@@ -53,8 +55,8 @@ class EncryptTest extends FlatSpec with Matchers {
   }
 
   it should "properly fail if travis api fails" in {
-    val encrypt = new Encrypt(new FailTravisEndpoints)
-    val resp = encrypt.tryEncrypt("noone", "nothing", ".org", msg, "invalidtoken")
+    val encrypt = new Encrypt(new FailTravisEndpoints, new MockGitHubRepo)
+    val resp = encrypt.tryEncrypt(repoSlug, msg, GitHubToken("invalidtoken"))
     assert(resp.status === Status.Failure)
   }
 

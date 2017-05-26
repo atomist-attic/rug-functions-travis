@@ -64,7 +64,7 @@ class MockTravisEndpoints extends TravisEndpoints {
 
   def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: GitHubToken): TravisToken = TravisToken(mockTravisToken)
 
-  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit = Unit
+  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, buildId: String): Unit = Unit
 
   def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug,
                      message: String, envVars: Seq[String]): Unit = Unit

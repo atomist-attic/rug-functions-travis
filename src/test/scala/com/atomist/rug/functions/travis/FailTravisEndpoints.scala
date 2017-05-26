@@ -18,7 +18,7 @@ class FailTravisEndpoints extends TravisEndpoints {
 
   def postAuthGitHub(endpoint: TravisAPIEndpoint, githubToken: GitHubToken): TravisToken = throw e
 
-  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit = throw e
+  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, buildId: String): Unit = throw e
 
   def postStartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, repoSlug: RepoSlug,
                      message: String, envVars: Seq[String]): Unit = throw e

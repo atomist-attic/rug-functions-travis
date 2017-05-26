@@ -53,9 +53,9 @@ trait TravisEndpoints {
     *
     * @param endpoint org|com
     * @param headers standard Travis API headers
-    * @param number number of build to restart
+    * @param buildId identifier of build to restart
     */
-  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit
+  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, buildId: String): Unit
 
   /** Start a new build on Travis CI
     *

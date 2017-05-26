@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.16.0...HEAD
 
+### Changed
+
+-   Restart build function build identifier is now a string
+
 ## [0.16.0] - 2017-05-25
 
 [0.16.0]: https://github.com/atomist/rug-functions-travis/compare/0.15.0...0.16.0

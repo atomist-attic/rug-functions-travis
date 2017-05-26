@@ -103,23 +103,22 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
       travisToken
     }
 
-  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, number: Int): Unit = {
+  def postRestartBuild(endpoint: TravisAPIEndpoint, headers: HttpHeaders, buildId: String): Unit = {
     val request = new RequestEntity[util.Map[String, Object]](
       headers,
       HttpMethod.POST,
-      URI.create(s"https://api.travis-ci.${endpoint.tld}/builds/$number/restart")
+      URI.create(s"https://api.travis-ci.${endpoint.tld}/builds/$buildId/restart")
     )
     retry("postRestartBuild") {
       restTemplate.exchange(request, classOf[util.Map[String, Object]])
     }
   }
 
-  def postStartBuild(
-                      endpoint: TravisAPIEndpoint,
-                      headers: HttpHeaders,
-                      repoSlug: RepoSlug,
-                      message: String,
-                      envVars: Seq[String]): Unit = {
+  def postStartBuild(endpoint: TravisAPIEndpoint,
+                     headers: HttpHeaders,
+                     repoSlug: RepoSlug,
+                     message: String,
+                     envVars: Seq[String]): Unit = {
     val body = Collections.singletonMap[String, Object]("request", Collections.unmodifiableMap[String, Object](Map(
       "message" -> s"API initiated Travis CI build: $message",
       "branch" -> "master",

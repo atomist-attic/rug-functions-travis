@@ -25,7 +25,7 @@ class RestartBuildFunction
   @RugFunction(name = "restart-travis-build", description = "Restarts a travis build",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
   def invoke(@Parameter(name = "visibility") visibility: String,
-             @Parameter(name = "buildId") buildId: Int,
+             @Parameter(name = "buildId") buildId: String,
              @Secret(name = "githubToken", path = TravisFunction.githubTokenPath) githubToken: String): FunctionResponse = {
 
       val api: TravisAPIEndpoint = TravisAPIEndpoint.stringToTravisEndpoint(visibility)

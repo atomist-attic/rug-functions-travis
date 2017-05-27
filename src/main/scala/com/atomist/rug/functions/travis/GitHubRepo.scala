@@ -24,8 +24,7 @@ trait GitHubRepo {
   def travisEndpoint(repoSlug: RepoSlug, token: GitHubToken): TravisAPIEndpoint = {
     val repo = getRepo(repoSlug, token)
     val isPrivate = repo.get("private").asInstanceOf[Boolean]
-    if (isPrivate) TravisComEndpoint
-    else TravisOrgEndpoint
+    if (isPrivate) TravisComEndpoint else TravisOrgEndpoint
   }
 
 }

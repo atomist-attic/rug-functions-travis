@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.17.0...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.17.1...HEAD
+
+## [0.17.1] - 2017-05-26
+
+[0.17.1]: https://github.com/atomist/rug-functions-travis/compare/0.17.0...0.17.1
+
+Explicit release
+
+### Changed
+
+-   Be more explicit about types in postAuthGitHub, add logging
 
 ## [0.17.0] - 2017-05-26
 

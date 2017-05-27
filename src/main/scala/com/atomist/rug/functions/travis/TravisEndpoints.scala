@@ -6,7 +6,7 @@ import org.springframework.http.HttpHeaders
 
 trait TravisEndpoints {
 
-  /** Return the key of the repo.
+  /** Return the public SSH key of the repo.
     *
     * @param endpoint org|com
     * @param headers standard Travis API headers

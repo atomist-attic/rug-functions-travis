@@ -95,8 +95,6 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
         HttpMethod.POST,
         URI.create(s"https://api.travis-ci.${endpoint.tld}/auth/github")
       )
-      logger.debug(s"postAuthGitHub: request=$request")
-      logger.debug(s"postAuthGitHub: body=$body")
       val responseEntity = retry("postAuthGitHub") {
         restTemplate.exchange(request, classOf[util.Map[String, String]])
       }

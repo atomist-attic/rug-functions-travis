@@ -8,7 +8,7 @@ class RepoHookTest extends FlatSpec with Matchers {
   import FunctionResponseHelpers._
 
   val mockTravisEndpoints: TravisEndpoints = new MockTravisEndpoints
-  val repoHook = new RepoHook(mockTravisEndpoints, new MockGitHubRepo)
+  val repoHook = RepoHook(mockTravisEndpoints, new MockGitHubRepo)
   val repoSlug = RepoSlug("noone", "nothing")
   val ght = GitHubToken("notatoken")
 
@@ -27,7 +27,7 @@ class RepoHookTest extends FlatSpec with Matchers {
   }
 
   val failTravisEndpoints: TravisEndpoints = new FailTravisEndpoints
-  val failHook = new RepoHook(failTravisEndpoints, new MockGitHubRepo)
+  val failHook = RepoHook(failTravisEndpoints, new MockGitHubRepo)
 
   it should "return failure when enabling a repo fails" in {
     val fr = failHook.tryRepoHook(true, repoSlug, ght)

@@ -6,7 +6,7 @@
 Rug functions that hit the [Travis CI][travis-ci] API.  Currently
 contains the following Rug functions:
 
--   `restart-travis-build(visibility, buildId, token)`
+-   `travis-restart-build(owner, repo, buildId, token)`
 -   `travis-build-rug(owner, repo, version, teamId, gitRef, travisToken, mavenBaseUrl, mavenUser, mavenToken, token)`
 -   `travis-enable-repo(owner, repo, token)`
 -   `travis-disable-repo(owner, repo, token)`

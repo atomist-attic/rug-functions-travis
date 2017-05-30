@@ -23,7 +23,7 @@ class RestartBuildFunction
     * @param githubToken  GitHub token with proper scopes for Travis CI
     * @return
     */
-  @RugFunction(name = "restart-travis-build", description = "Restarts a travis build",
+  @RugFunction(name = "travis-restart-build", description = "Restarts a travis build",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
   def invoke(@Parameter(name = "owner") owner: String,
              @Parameter(name = "repo") repo: String,

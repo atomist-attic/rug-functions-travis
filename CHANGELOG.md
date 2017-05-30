@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.17.2...HEAD
+[Unreleased]: https://github.com/atomist/rug-functions-travis/compare/0.18.0...HEAD
+
+## [0.18.0] - 2017-05-30
+
+[0.18.0]: https://github.com/atomist/rug-functions-travis/compare/0.17.1...0.18.0
+
+Unification release
 
 ### Changed
 
 -   Brought build restart API in line with other functions
+-   Changed name of travis-restart-build to agree with other functions
 
 ## [0.17.2] - 2017-05-28
 

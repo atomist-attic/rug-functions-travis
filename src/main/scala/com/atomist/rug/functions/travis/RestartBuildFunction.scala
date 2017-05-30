@@ -1,10 +1,8 @@
 package com.atomist.rug.functions.travis
 
-import com.atomist.rug.spi.Handlers.Status
 import com.atomist.rug.spi.annotation.{Parameter, RugFunction, Secret, Tag}
-import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse, StringBodyOption}
+import com.atomist.rug.spi.{AnnotatedRugFunction, FunctionResponse}
 import com.typesafe.scalalogging.LazyLogging
-import org.springframework.http.HttpHeaders
 
 /**
   * Restart a travis-ci build
@@ -21,7 +19,7 @@ class RestartBuildFunction
     * @param repo         name of the repo to enable
     * @param buildId      ID of build to restart
     * @param githubToken  GitHub token with proper scopes for Travis CI
-    * @return
+    * @return  function response indicating success or failure
     */
   @RugFunction(name = "travis-restart-build", description = "Restarts a travis build",
     tags = Array(new Tag(name = "travis"), new Tag(name = "ci")))
@@ -33,4 +31,3 @@ class RestartBuildFunction
     RestartBuild(travisEndpoints, gitHubRepo).tryRestart(repoSlug, buildId, GitHubToken(githubToken))
   }
 }
-

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.18.0] - 2017-05-30
 
-[0.18.0]: https://github.com/atomist/rug-functions-travis/compare/0.17.1...0.18.0
+[0.18.0]: https://github.com/atomist/rug-functions-travis/compare/0.17.2...0.18.0
 
 Unification release
 

@@ -98,6 +98,9 @@ class RealTravisEndpoints extends TravisEndpoints with LazyLogging {
       val responseEntity = retry("postAuthGitHub") {
         restTemplate.exchange(request, classOf[util.Map[String, String]])
       }
+      if (responseEntity.getBody == null) {
+        throw new RuntimeException("Your github token was not accepted by Travis. It might help to ask Atomist to `deauthorize github` and then `authorize github`.")
+      }
       val accessToken = responseEntity.getBody.get("access_token")
       val travisToken = TravisToken(accessToken)
       travisTokens.put(githubToken, travisToken)

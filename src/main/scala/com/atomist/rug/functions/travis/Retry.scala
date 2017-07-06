@@ -29,6 +29,7 @@ object Retry {
     Thread.sleep(wait)
     Try { fn } match {
       case Success(x) => x
+      case Failure(e : DoNotRetryException) => throw e
       case Failure(e) if n > 0 =>
         logger.warn(s"$opName attempt failed (${e.getMessage}), $n attempts left", e)
         retry(opName, n - 1, wait * 2L + rng.nextInt(100))(fn)
@@ -37,3 +38,5 @@ object Retry {
   }
 
 }
+
+class DoNotRetryException(msg: String, cause: Throwable) extends RuntimeException(msg, cause)
